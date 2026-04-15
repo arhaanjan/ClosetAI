@@ -26,6 +26,14 @@ class _SignupScreenState extends State<SignupScreen> {
         email:    _emailCtrl.text.trim(),
         password: _passCtrl.text.trim(),
       );
+
+      // <-- ADD THIS BLOCK -->
+      // Pop the signup screen off the stack so the AuthGate
+      // underneath can reveal the HomeScreen!
+      if (mounted) {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+
     } catch (e) {
       setState(() => _error = e.toString().contains('email-already-in-use')
           ? 'Account already exists with this email.'
