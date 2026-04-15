@@ -48,7 +48,7 @@ By utilizing Google's Gemini 2.5 Flash vision capabilities, the app automaticall
 
 <div align="center">
   <img width="22%" alt="Screen 1" src="https://github.com/user-attachments/assets/4899c448-8986-450f-b5b5-894438c96d1b" />&nbsp;
-  <img width="22%" alt="Screen 2" src="https://github.com/user-attachments/assets/7248b86d-da24-44d8-b92c-c3b4e7d3dd9c" />&nbsp;
+  <img width="22%" height="2157" alt="Screenshot_20260416_033350" src="https://github.com/user-attachments/assets/d3b8b707-e2e5-47cc-ad36-e3d87a7f68f3" />
   <img width="22%" alt="Screen 3" src="https://github.com/user-attachments/assets/54d59afe-9ab1-4d7a-af55-b5d20cb75cda" />&nbsp;
   <img width="22%" alt="Screen 4" src="https://github.com/user-attachments/assets/404382c1-7647-4068-9a14-5fe1f11f6107" />&nbsp;
 </div>
