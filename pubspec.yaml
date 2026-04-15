@@ -106,7 +106,7 @@ flutter:
 
   assets:
     - .env
-    - assets/images/inside.png
+    - assets/images/
 
 
 flutter_icons:

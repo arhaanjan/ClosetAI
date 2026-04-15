@@ -1,9 +1,5 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import '../main.dart';
 import '../models/clothing_item.dart';
 import '../services/firebase_service.dart';
@@ -19,54 +15,8 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _editingName = false;
-  bool _uploadingPhoto = false;
-  bool _isSigningOut = false; // <-- Added to prevent double clicks
+  bool _isSigningOut = false;
   final _nameCtrl = TextEditingController();
-
-  // ── Profile photo: compress → Base64 → save to Firestore ──────
-  Future<void> _pickAndUploadPhoto() async {
-    final file = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 90,
-    );
-    if (file == null) return;
-
-    setState(() => _uploadingPhoto = true);
-    try {
-      final compressed = await FlutterImageCompress.compressWithFile(
-        File(file.path).absolute.path,
-        minWidth: 400,
-        minHeight: 400,
-        quality: 70,
-        format: CompressFormat.jpeg,
-      );
-      if (compressed == null) throw Exception('Compression failed');
-
-      final base64String = 'data:image/jpeg;base64,${base64Encode(compressed)}';
-
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.service.uid)
-          .update({'photoBase64': base64String});
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile photo updated!'),
-            backgroundColor: Color(0xFF059669),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed: $e')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _uploadingPhoto = false);
-    }
-  }
 
   Future<void> _saveName() async {
     final name = _nameCtrl.text.trim();
@@ -83,7 +33,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (mounted) {
         // Pop everything off the top until we reach the root (AuthGate).
-        // AuthGate will automatically show the LoginScreen now that we are signed out.
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {
@@ -95,6 +44,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
   }
+
   @override
   void dispose() {
     _nameCtrl.dispose();
@@ -110,7 +60,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         builder: (context, profileSnap) {
 
           // ── BULLETPROOF GUARD 1 ──────────────────────
-          // If user signs out, stop building UI instantly
           if (widget.service.uid == null || _isSigningOut) {
             return const Center(child: CircularProgressIndicator(color: AppColors.accent));
           }
@@ -118,6 +67,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return StreamBuilder<QuerySnapshot>(
             stream: widget.service.clothesStream(),
             builder: (context, clothesSnap) {
+
+              // ── Quick Loading Check to prevent UI flicker ──
+              if (profileSnap.connectionState == ConnectionState.waiting ||
+                  clothesSnap.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator(color: AppColors.accent));
+              }
 
               // ── BULLETPROOF GUARD 2 ──────────────────────
               if (widget.service.uid == null) {
@@ -128,7 +83,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               final profile = profileSnap.data?.data() as Map<String, dynamic>?;
               final displayName  = profile?['displayName'] ?? 'User';
               final email        = profile?['email']       ?? '';
-              final photoBase64  = profile?['photoBase64'] ?? '';
 
               // ── Compute wardrobe stats ─────────────────
               final allItems = (clothesSnap.data?.docs ?? [])
@@ -150,64 +104,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                 children: [
 
-                  // ── Avatar ────────────────────────────
+                  // ── Clean Initial Avatar ───────────────────
                   Center(
-                    child: Stack(
-                      children: [
-                        GestureDetector(
-                          onTap: _uploadingPhoto ? null : _pickAndUploadPhoto,
-                          child: Container(
-                            width: 108,
-                            height: 108,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: AppColors.accent, width: 2),
-                              color: AppColors.surface,
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: _uploadingPhoto
-                                ? const Center(
-                              child: CircularProgressIndicator(
-                                color: AppColors.accent,
-                                strokeWidth: 2,
-                              ),
-                            )
-                                : photoBase64.isNotEmpty
-                                ? Image.memory(
-                              base64Decode(photoBase64.split(',').last),
-                              fit: BoxFit.cover,
-                            )
-                                : Center(
-                              child: Text(
-                                displayName.isNotEmpty
-                                    ? displayName[0].toUpperCase()
-                                    : '?',
-                                style: const TextStyle(
-                                  fontSize: 40,
-                                  color: AppColors.accentLight,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                          ),
+                    child: Container(
+                      width: 108,
+                      height: 108,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.accent, width: 2),
+                        color: AppColors.surface,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        displayName.isNotEmpty
+                            ? displayName[0].toUpperCase()
+                            : '?',
+                        style: const TextStyle(
+                          fontSize: 40,
+                          color: AppColors.accentLight,
+                          fontWeight: FontWeight.w800,
                         ),
-                        Positioned(
-                          bottom: 2,
-                          right: 2,
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: const BoxDecoration(
-                              color: AppColors.accent,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.camera_alt,
-                              size: 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -288,7 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 4),
                   const Center(
                     child: Text(
-                      'Tap name to edit  ·  Tap photo to change',
+                      'Tap name to edit',
                       style: TextStyle(color: AppColors.textMuted, fontSize: 11),
                     ),
                   ),
@@ -336,25 +253,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           const Text('🧺', style: TextStyle(fontSize: 28)),
                           const SizedBox(width: 14),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '$laundry item${laundry > 1 ? 's' : ''} in the laundry pile',
-                                style: const TextStyle(
-                                  color: AppColors.laundry,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '$laundry item${laundry > 1 ? 's' : ''} in the laundry pile',
+                                  style: const TextStyle(
+                                    color: AppColors.laundry,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 2),
-                              const Text(
-                                'Tap any item in your closet to mark it clean.',
-                                style: TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 12),
-                              ),
-                            ],
+                                const SizedBox(height: 2),
+                                const Text(
+                                  'Tap any item in your closet to mark it clean.',
+                                  style: TextStyle(
+                                      color: AppColors.textSecondary,
+                                      fontSize: 12),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
