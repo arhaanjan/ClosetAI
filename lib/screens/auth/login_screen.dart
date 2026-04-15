@@ -4,6 +4,7 @@ import '../../services/firebase_service.dart';
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart'; // <-- Add this
 
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
   @override State<LoginScreen> createState() => _LoginScreenState();
@@ -70,12 +71,13 @@ class _LoginScreenState extends State<LoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 48),
-            const Text('👗', style: TextStyle(fontSize: 52),
-                textAlign: TextAlign.center),
-            const SizedBox(height: 20),
-            const Text('ClosetAI', textAlign: TextAlign.center,
-                style: TextStyle(color: AppColors.textPrimary, fontSize: 34,
-                    fontWeight: FontWeight.w800, letterSpacing: -1)),
+
+            Image.asset(
+                'assets/images/inside.png',
+                width: 250, // Optional: Set width
+                height: 250, // Optional: Set height
+                fit: BoxFit.contain,),
+
             const SizedBox(height: 6),
             const Text('Your smart wardrobe, organized.',
                 textAlign: TextAlign.center,
