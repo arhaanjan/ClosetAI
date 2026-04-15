@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
@@ -29,8 +30,8 @@ class GeminiService {
   GeminiService._();
   static final GeminiService instance = GeminiService._();
 
-  // ⚠️ Remove the extra 'Y' if it was a typo, or paste your fresh key here!
-  static const _apiKey = 'AIzaSyD7qBq52B1_UKld1urQvoms2fPpRlV0-Yk';
+
+  static final _apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
 
   static const _categoriesHint = '''
 Tops: T-Shirt, Shirt, Polo, Tank Top, Hoodie, Sweater, Jacket, Blazer, Coat

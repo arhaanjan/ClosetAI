@@ -76,21 +76,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _signOut() async {
-    setState(() => _isSigningOut = true); // Triggers the safe loading UI
+    setState(() => _isSigningOut = true);
 
     try {
       await widget.service.signOut();
 
-      // Force the app to clear the entire navigation stack
-      // and physically push the user to the Login screen.
       if (mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-              (route) => false,
-        );
+        // Pop everything off the top until we reach the root (AuthGate).
+        // AuthGate will automatically show the LoginScreen now that we are signed out.
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {
-      // If something goes wrong, turn off the loading spinner
       if (mounted) {
         setState(() => _isSigningOut = false);
         ScaffoldMessenger.of(context).showSnackBar(
