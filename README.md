@@ -57,11 +57,11 @@ By utilizing Google's Gemini 2.5 Flash vision capabilities, the app automaticall
 
 ## Key Features
 
-- ✨ **AI Auto-Tagging:** Upload or snap a photo of a garment. ClosetAI instantly analyzes the image to extract its `Name`, `Category`, `Type`, and `Dominant Color` — outputting perfectly structured JSON.
-- 🤖 **Conversational Stylist:** A built-in chatbot that acts as your personal fashion assistant. It reads your active inventory and curates outfits tailored to your requests.
-- 👕 **Smart Laundry Tracking:** Never get recommended a shirt that's in the wash. Easily toggle items between `Available` (🟢) and `Laundry` (🟠).
-- 🔒 **Secure & Synced:** Powered by Firebase Auth (Google Sign-In) and Firestore. Your digital closet syncs seamlessly across all your devices.
-- ⚡ **Optimized Storage:** Images are compressed on-device using `flutter_image_compress` before being uploaded to Firebase Storage/Cloudinary, saving bandwidth and load times.
+-  **AI Auto-Tagging:** Upload or snap a photo of a garment. ClosetAI instantly analyzes the image to extract its `Name`, `Category`, `Type`, and `Dominant Color` — outputting perfectly structured JSON.
+-  **Conversational Stylist:** A built-in chatbot that acts as your personal fashion assistant. It reads your active inventory and curates outfits tailored to your requests.
+-  **Smart Laundry Tracking:** Never get recommended a shirt that's in the wash. Easily toggle items between `Available` and `Laundry`.
+-  **Secure & Synced:** Powered by Firebase Auth (Google Sign-In) and Firestore. Your digital closet syncs seamlessly across all your devices.
+-  **Optimized Storage:** Images are compressed on-device using `flutter_image_compress` before being uploaded to Firebase Storage/Cloudinary, saving bandwidth and load times.
 
 ---
 
